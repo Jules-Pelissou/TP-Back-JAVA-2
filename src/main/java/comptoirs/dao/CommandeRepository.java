@@ -5,6 +5,7 @@ import comptoirs.entity.Commande;
 import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 // This will be AUTO IMPLEMENTED by Spring into a Bean called CommandeRepository
@@ -35,4 +36,7 @@ public interface CommandeRepository extends JpaRepository<Commande, Integer> {
         GROUP BY numeroCommande, port
     """)
     List<CommandeProjection> commandesPourClient(String codeClient);
+
+    @Query("SELECT (c.envoyeele IS NOT NULL) FROM Commande c WHERE c.numero = :numeroCommande")
+    boolean checkEnvoyee(Integer numeroCommande);
 }

@@ -1,8 +1,10 @@
 package comptoirs.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import comptoirs.entity.Produit;
@@ -90,5 +92,14 @@ public interface ProduitRepository extends JpaRepository<Produit, Integer> {
 
 	@Query("select p from Produit p")
     List<ProduitProjection> findAllWithProjection();
+
+    @Query("SELECT p.unitesEnStock FROM Produit p WHERE p.reference = :refProduit")
+    int produitEnStock(Integer refProduit);
+
+    @Modifying
+    @Query("UPDATE Produit p SET p.unitesEnStock = :qtt")
+    void decrementStock(Integer qtt);
+
+
 
 }

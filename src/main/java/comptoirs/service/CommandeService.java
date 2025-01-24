@@ -61,7 +61,7 @@ public class CommandeService {
         nouvelleCommande.setAdresseLivraison(client.getAdresse());
         // Si le client a déjà commandé plus de 100 articles, on lui offre une remise de
         // 15%
-        // La requête SQL nécessaire est définie dans l'interface ClientRepository
+        // La requête SQL nécessaire est définie d  ans l'interface ClientRepository
         var nbArticles = clientDao.nombreArticlesCommandesPar(clientCode);
         if (nbArticles > 100) {
             nouvelleCommande.setRemise(new BigDecimal("0.15"));
@@ -106,8 +106,30 @@ public class CommandeService {
      */
     @Transactional
     public Ligne ajouterLigne(int commandeNum, int produitRef, @Positive int quantite) {
-        // TODO : implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+            // Vérification que la commande existe
+            var commande = commandeDao.findById(commandeNum).orElseThrow();
+            var produit = produitDao.findById(produitRef).orElseThrow();
+
+            // Création de la nouvelle ligne pour la commande
+            var nvLigne = new Ligne();
+
+            if (commandeDao.checkEnvoyee(commandeNum)) {
+                throw new IllegalArgumentException("La commande a déjà été envoyée");
+            }
+                // Set des elmnts de la ligne
+                nvLigne.setCommande(commande);
+                nvLigne.setProduit(produitDao.findById(produitRef).orElseThrow());
+                var qttArticle = produit.getUnitesEnStock();
+                if (qttArticle > quantite){
+                    nvLigne.setQuantite(quantite);
+                    produitDao.decrementStock(produit.getUnitesEnStock() - quantite);
+                }else{
+                    throw new IllegalArgumentException("La quantité est trop importante");
+                }
+
+                ligneDao.save(nvLigne);
+                commande.getLignes().add(nvLigne);
+            return nvLigne;
     }
 
     /**
