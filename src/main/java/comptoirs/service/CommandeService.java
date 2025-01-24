@@ -2,6 +2,7 @@ package comptoirs.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Date;
 
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -152,7 +153,10 @@ public class CommandeService {
      */
     @Transactional
     public Commande enregistreExpedition(int commandeNum) {
-        // TODO : implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+        var commande = commandeDao.findById(commandeNum).orElseThrow();
+        commande.setEnvoyeele(LocalDate.now());
+        
+        commandeDao.save(commande);
+        return commande;
     }
 }
